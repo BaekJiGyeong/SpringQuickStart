@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+	
+	<context:component-scan base-package="com.kt.jigyeong">
+	</context:component-scan>
+	
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	
+	<context:property-placeholder location="classpath:config/database.properties"/>
+	
+	<!-- Mybatis -->
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:sql-map-config.xml"></property>
+	</bean>
+	
+	<!-- DataSource 설정 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- Transaction 설정 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="*"/>		
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*(..))" id="txPointcut"/>
+		<aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice"/>
+	</aop:config>
+	
+	<!-- Spring JDBC 설정 -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!--  
+	<bean id="around" class="com.kt.jigyeong.common.AroundAdvice"></bean>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.*(..))" id="allPointcut"/>
+		<aop:aspect ref="around">
+			<aop:around method="aroundLog" pointcut-ref="allPointcut"/>
+		</aop:aspect>
+	</aop:config>
+	-->
+	
+	
+	<!-- 
+	<bean id="before" class="com.kt.jigyeong.common.BeforeAdvice"></bean>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.*(..))" id="allPointcut"/>
+		<aop:aspect ref="before">
+			<aop:before method="beforeLog" pointcut-ref="allPointcut"/>
+		</aop:aspect>
+	</aop:config>
+ 	-->
+	
+	
+	<!--  
+	<bean id="afterReturning" class="com.kt.jigyeong.common.AfterReturningAdvice"></bean>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.get*(..))" id="getPointcut"/>
+		<aop:aspect ref="afterReturning">
+			<aop:after-returning method="afterLog" pointcut-ref="getPointcut" returning="returnObj"/>
+		</aop:aspect>
+	</aop:config>
+	-->
+	
+	<!--  
+	<bean id="afterThrowing" class="com.kt.jigyeong.common.AfterThrowingAdvice"></bean>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.*(..))" id="allPointcut"/>
+		<aop:aspect ref="afterThrowing">
+			<aop:after-throwing method="exceptionLog" pointcut-ref="allPointcut" throwing="exceptObj"/>
+		</aop:aspect>
+	</aop:config>
+	-->
+	
+	
+	<!--
+	<bean id="log" class="com.kt.jigyeong.common.LogAdvice"></bean>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.*(..))" id="allPointcut"/>
+		<aop:pointcut expression="execution(* com.kt.jigyeong..*Impl.get*(..))" id="getPointcut"/>
+		
+		<aop:aspect ref="log">
+			<aop:after method="printLog" pointcut-ref="getPointcut"/>
+		</aop:aspect>
+	</aop:config>
+	-->
+	<!--
+	<bean id="userService" class="com.kt.jigyeong.user.impl.UserServiceImpl">
+		<property name="userDAO" ref="userDAO"></property>
+	</bean>
+	
+	<bean id="userDAO" class="com.kt.jigyeong.user.impl.UserDAO"></bean>
+	-->
+	
+	<!--
+	
+	<bean id="sony" class="com.kt.jigyeong.SonySpeaker"></bean>
+	
+	<bean id="apple" class="com.kt.jigyeong.AppleSpeaker"></bean>
+	
+	<bean id="tv" class="com.kt.jigyeong.LgTV"></bean>
+	<bean id="collectionBean" class="com.kt.jigyeong.CollectionBean">
+		<property name="addressList">
+			 
+			<list>
+				<value>서울시 강남구 역삼동</value>
+				<value>서울시 성동구 행당동</value>
+			</list>
+			
+			
+		</property>
+	
+	</bean>
+	-->
+	
+	<!--
+	<bean id="tv" class="com.kt.jigyeong.SamsungTV" scope="singleton"
+		lazy-init="true" init-method="initMethod"
+		destroy-method="destroyMethod" p:speaker-ref="sony" p:price="270000"/>
+		-->
+		<!-- <constructor-arg index="0" ref="apple"></constructor-arg> <constructor-arg 
+			index="1" value="2700000"></constructor-arg> -->
+
+		<!-- <property name="speaker" ref="apple"></property> <property name="price" 
+			value="2700000"></property> -->
+
+
+
+</beans>
